@@ -1,30 +1,21 @@
-import { surveyStore } from "../../../../stores/surveyStore";
-import { authStore } from "../../../../stores/authStore";
-import { db } from "../../../../lib/firebase/firebase.app";
-import { doc, collection, getDoc, getDocs } from "firebase/firestore";
+// import { surveyStore } from "../../../../stores/surveyStore";
+// import { authStore } from "../../../../stores/authStore";
+// import { APP_ROOT } from "$env/static/private";
 
 export const load = async ({ params }) => {
-    let userId;
-    authStore.subscribe((curr)=>{
-        userId = curr?.currentUser?.uid;
-    })
 
-    let responsesRef;
-    let surveyRef;
+//     const survey = await fetch(`/api/surveys?id=${params.slug}`);
+//     const surveyJson = await survey.json();
 
-    if (!userId) {
-        return { error: "error" };
-    }
+//     if (survey.ok) {
+//         const responses = await fetch(`/api/responses?survey_id=${surveyJson._id}`);
+//         const responsesJson = await responses.json();
+//         const responsesCount = responsesJson.length;
+//     }
 
-    surveyRef = doc(db, "users", userId, "surveys", params.slug);
-    responsesRef = collection(db, "users", userId, "surveys", params.slug, "responses");
-
-    const survey = await getDoc(surveyRef);
-    const responses = await getDocs(responsesRef);
-
-    surveyStore.update((curr) => {
-        return { ...curr, survey: survey.data(), responses: responses.docs.map(doc => doc.data())}
-    });
+//     surveyStore.update((curr) => {
+//         return { ...curr, currentSurvey: surveyJson, responses: responsesJson, responsesCount: responsesCount}
+//     });
     return {
         slug: params.slug
     }

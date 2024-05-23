@@ -1,24 +1,25 @@
 <script>
-    import {onMount} from 'svelte';
     import {authStore} from '../../../stores/authStore';
-    import {db} from '../../../lib/firebase/firebase.app';
-    import {addDoc, collection} from 'firebase/firestore';
+    import {browser} from '$app/environment';
+    import {goto} from '$app/navigation';
     import Modal from '$lib/components/Modal.svelte';
     import { v4 as uuidv4 } from 'uuid';
 
 
     let showModal = false;
     let surveyQuestions = [];
-    let userId;
-    let surveysRef;
+    let user_id;
 
-    onMount(async () => {
+    if(browser && localStorage.authstore){
+        const authStorage = JSON.parse(localStorage.authstore);
+        user_id = authStorage.currentUser._id;
+    }
+    else{
         authStore.subscribe((curr)=>{
-            userId = curr?.currentUser?.uid;
+            user_id = curr?.currentUser?._id;
         })
-        surveysRef = collection(db, "users", userId, "surveys");
-    });
-
+    }
+    
     function addQuestion(){
         const questionType = document.getElementById('questionType').value;
         const questionPrompt = document.getElementById('questionPrompt').value;
@@ -28,14 +29,22 @@
     }
 
     async function createSurvey(){
-        await addDoc(surveysRef, {
-            title: document.getElementById('surveyName').value,
-            description: document.getElementById('surveyDescription').value,
-            questions: surveyQuestions,
-            created: new Date().toISOString(),
-            status: 'in-progress'
+        await fetch('/api/surveys', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: document.getElementById('surveyName').value,
+                description: document.getElementById('surveyDescription').value,
+                questions: surveyQuestions,
+                owner_id: user_id,
+                created: new Date().toISOString(),
+                status: 'in-progress'
+            })
         });
-        window.location.href = '/app';
+        localStorage.removeItem('surveystore');
+        goto('/app');
     }
 </script>
 

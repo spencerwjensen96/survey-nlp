@@ -1,4 +1,5 @@
 <script>
+    import { goto } from '$app/navigation';
     import { authStore, authHandlers } from "../../stores/authStore";
   
       let email = '';
@@ -7,15 +8,21 @@
   
       async function handleSubmit(event) {
         try {
-            await authHandlers.login(email, password);
+            let user = await authHandlers.login(email, password);
+            
+            if (!user){
+                error = 'Authentication Error. Please try again later.';
+                return;
+            }
+            authStore.set({currentUser: user, isLoggedIn: true});
+            
+            goto('/app');
         }
         catch {
             error = 'Authentication Error. Please try again later.';
         }
-        if ($authStore.currentUser) {
-            window.location.href = '/app';
-        }
       }
+
     
 </script>
 

@@ -1,5 +1,6 @@
 <script>
-  import { authStore, authHandlers } from "../../stores/authStore";
+    import { goto } from '$app/navigation';
+    import { authStore, authHandlers } from "../../stores/authStore";
 
     let email = '';
     let password = '';
@@ -13,13 +14,22 @@
             return;
         }
         try {
-            await authHandlers.signup(email, password);
+            const user = await authHandlers.signup(email, password);
+            
+            if (!user){
+                error = 'Authentication Error. Please try again later.';
+                return;
+            }
+            // let userData = {
+            //     email: user.email,
+            //     user_id: user.uid
+            // }
+            
+            authStore.set({currentUser: user, isLoggedIn: true});
+            goto('/app');
         }
         catch {
             error = 'Authentication Error. Please try again later.';
-        }
-        if ($authStore.currentUser) {
-            window.location.href = '/app';
         }
     }
     

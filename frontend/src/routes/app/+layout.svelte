@@ -1,26 +1,35 @@
 <script>
     import {onMount} from 'svelte';
+    import { browser } from '$app/environment';
+    import { goto } from '$app/navigation';
     import { authStore, authHandlers } from "../../stores/authStore";
 
     let displayName;
     let photoURL;
-    let data;
+    let isLoading = true;
 
     onMount(() => {
-       authStore.subscribe((curr)=>{
-        photoURL = curr?.currentUser?.photoURL;
-        displayName = curr?.currentUser?.displayName;
-        data = curr?.data;
-       })
+        if(browser && localStorage.authstore){
+            const authStorage = JSON.parse(localStorage.authstore);
+            photoURL = authStorage.currentUser.photoURL;
+            displayName = authStorage.currentUser.displayName;
+        }
+        else{
+            authStore.subscribe((curr)=>{
+                photoURL = curr?.currentUser?.photoURL;
+                displayName = curr?.currentUser?.displayName;
+            });
+        }
+       isLoading = false;
     });
 
     async function logout() {
         await authHandlers.logout();
-        window.location.href = '/login';
+        goto('/login');
     }    
     
 </script>
-{#if !$authStore.isLoading}
+{#if !isLoading}
 <div class="flex p-4 bg-blue-500 text-white ">
     <div>
         <p class="p-2"><a href="/app" class="text-white">Home</a></p>
@@ -52,7 +61,6 @@
         <!-- </div> -->
     </div>
 </div>
-
 
 <slot></slot>
 {/if}

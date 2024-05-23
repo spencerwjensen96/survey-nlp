@@ -1,5 +1,5 @@
-import { initializeApp,getApps,getApp,deleteApp,type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from "firebase/auth";
+import { initializeApp,getApps,getApp,deleteApp } from 'firebase/app';
+import { getAuth } from "firebase/auth";
 import { getFirestore } from 'firebase/firestore';
 
 /**
@@ -15,8 +15,8 @@ const config = {
     measurementId: import.meta.env.VITE_MEASUREMENTID
 }
 
-let firebaseApp:FirebaseApp | undefined;
-let auth: Auth;
+let firebaseApp;
+let auth;
 // create singleton of firebase client app
 if(!getApps().length){
     firebaseApp = initializeApp(config);
@@ -29,7 +29,5 @@ else{
 
 auth = getAuth(firebaseApp);
 
-let db = getFirestore(firebaseApp);
-
 // export the firebase app
-export {firebaseApp,auth,db}
+export {firebaseApp,auth}

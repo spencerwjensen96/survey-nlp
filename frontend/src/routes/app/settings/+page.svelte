@@ -1,19 +1,29 @@
 <script>
     import { authStore, authHandlers } from "../../../stores/authStore";
+    import { browser } from '$app/environment';
 
     let email;
     let photoURL;
     let displayName;
     let newName = false;
-    let created;
-    let lastLogin;
-    authStore.subscribe((curr) => {
-        email = curr?.currentUser?.email;
-        photoURL = curr?.currentUser?.photoURL;
-        displayName = curr?.currentUser?.displayName;
-        created = curr?.currentUser?.metadata.creationTime;
-        lastLogin = curr?.currentUser?.metadata.lastSignInTime;
-    });
+
+
+    if(browser && localStorage.authstore){
+        const authStorage = JSON.parse(localStorage.authstore);
+        email = authStorage.currentUser.email;
+        photoURL = authStorage.currentUser.photoURL;
+        displayName = authStorage.currentUser.displayName;
+    }
+    else{
+        authStore.subscribe((curr) => {
+            email = curr?.currentUser?.email;
+            photoURL = curr?.currentUser?.photoURL;
+            displayName = curr?.currentUser?.displayName;
+            // created = curr?.currentUser?.metadata.creationTime;
+            // lastLogin = curr?.currentUser?.metadata.lastSignInTime;
+        });
+    }
+    
 
     function updateName(){
         newName = true;
@@ -42,10 +52,10 @@
             <input id="displayName" bind:value={displayName} on:change={updateName} placeholder="Change" class="p-2">
             <p>{email}</p>
             <div class="h-8"></div>
-            <label for="created">Account Created Date:</label>
+            <!-- <label for="created">Account Created Date:</label>
             <p id="created" class="opacity-50">{created}</p>
             <label for="loginDate">Last Login Date:</label>
-            <p id="loginDate" class="opacity-50">{lastLogin}</p>
+            <p id="loginDate" class="opacity-50">{lastLogin}</p> -->
         </div>
 
         <button on:click={handleSubmit} class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Save</button>
